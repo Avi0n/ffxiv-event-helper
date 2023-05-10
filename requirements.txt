@@ -1,0 +1,5 @@
+py-cord
+PyYAML
+pytz
+tzlocal
+simple-date

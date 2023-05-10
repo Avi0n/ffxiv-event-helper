@@ -1,0 +1,20 @@
+# VSCode
+.vscode/
+
+# Python virtualenv environment folders
+venv/
+env/
+env3/
+.env/
+
+# Config file
+config.yml
+
+# Python
+__pycache__/
+
+# Log files
+*.log
+
+# Testing file
+testing.py

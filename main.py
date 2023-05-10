@@ -247,9 +247,9 @@ async def event_signup(
 
         # Update embed dict with new info
         if prev_status == "Attending":
-            embed_dict["fields"][1]["value"] = "\n".join(attending_list)
+            embed_dict["fields"][1]["value"] = "".join(attending_list)
         elif prev_status == "Tentative":
-            embed_dict["fields"][2]["value"] = "\n".join(attending_list)
+            embed_dict["fields"][2]["value"] = "".join(attending_list)
         else:
             print(f"Error while removing user from list to change status.")
 

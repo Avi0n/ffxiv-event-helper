@@ -263,7 +263,11 @@ async def event_signup(
     if status == "Attending":
         attendees_list = embed_dict["fields"][1]["value"]
 
-        attendees_list += f"{job} - {user_nick}\n"
+        # Add newline if another user has already registered
+        if attendees_list == "":
+            attendees_list += f"{job} - {user_nick}"
+        else:
+            attendees_list += f"\n{job} - {user_nick}"
 
         # Update embed dict with new Attendees info
         embed_dict["fields"][1]["value"] = attendees_list

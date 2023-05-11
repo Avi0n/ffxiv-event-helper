@@ -87,6 +87,7 @@ duration_list = [1, 2, 3, 4, 5, 6]
 @option("minute", description="minute", choices=minutes_list)
 @option("duration", description="Duration of the event in HOURS", choices=duration_list)
 @option("location", description="Voice channel for the event")
+@option("ping_role", description="Choose a role to ping", required=False)
 async def new_event(
     ctx: discord.ApplicationContext,
     event_name: str,
@@ -96,6 +97,7 @@ async def new_event(
     minute: str,
     duration: int,
     location: discord.VoiceChannel,
+    ping_role: discord.Role
 ):
     """Create a new event."""
 
@@ -124,9 +126,6 @@ async def new_event(
     # Set static forum channel. Make dynamic later.
     forum_channel = bot.get_channel(config["channelid"])
 
-    # Set static guild role. Make this dynamic later so we can let event makers ping certain roles.
-    role = get(ctx.guild.roles, name="Static")
-
     # Create initial message
     embed = create_embed(event_name, description, "", "")
 
@@ -134,7 +133,7 @@ async def new_event(
     thread = await forum_channel.create_thread(
         name=event_name,
         embed=embed,
-        content=f"{discord_tz_dt}\nDuration: {duration} hr(s)\n{role.mention}",
+        content=f"{discord_tz_dt}\nDuration: {duration} hr(s)\n{ping_role.mention}",
     )
 
     print(f"starting_message.id: {thread.starting_message.id}")

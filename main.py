@@ -9,6 +9,7 @@ import yaml
 from discord import channel, option
 from discord.ext import commands
 from discord.utils import get
+import pprint
 
 # TODO: Link to function that creates an event in the server
 # TODO: Create dynamic embed that has dropdown to select job
@@ -42,18 +43,18 @@ class DropdownView(discord.ui.View):
 # Create an event embed
 def create_embed(event_name, description, field_value, footer):
     embed = discord.Embed(
-        title=event_name,
+        title=f'__{event_name}__',
         description=description,
         color=discord.Colour.blurple(),
     )
 
     embed.add_field(
-        name="Note",
+        name="__Note__",
         value="Use the /event_signup command to register for the event.",
         inline=False,
     )
-    embed.add_field(name="Attending", value=field_value, inline=False)
-    embed.add_field(name="Tentative", value=field_value, inline=False)
+    embed.add_field(name="__Attending__", value=field_value, inline=False)
+    embed.add_field(name="__Tentative__", value=field_value, inline=False)
 
     embed.set_footer(text=footer)
 
@@ -73,7 +74,7 @@ async def ping(ctx):
 
 
 # New event slash command
-hours_list = list(range(1, 25))
+hours_list = list(range(1, 13))
 minutes_list = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
 duration_list = [1, 2, 3, 4, 5, 6]
 
@@ -85,9 +86,10 @@ duration_list = [1, 2, 3, 4, 5, 6]
 @option("date", description="Date of the event in MM-dd format (Example: 5-23)")
 @option("hour", description="hour", choices=hours_list)
 @option("minute", description="minute", choices=minutes_list)
+@option("am_pm", description="AM/PM", choices=["AM", "PM"])
 @option("duration", description="Duration of the event in HOURS", choices=duration_list)
 @option("location", description="Voice channel for the event")
-@option("ping_role", description="Choose a role to ping", required=False)
+@option("ping_role", description="Choose a role to ping")
 async def new_event(
     ctx: discord.ApplicationContext,
     event_name: str,
@@ -95,14 +97,18 @@ async def new_event(
     date: str,
     hour: int,
     minute: str,
+    am_pm: str,
     duration: int,
     location: discord.VoiceChannel,
     ping_role: discord.Role
 ):
     """Create a new event."""
 
+    # If PM, add 12 to conver to 24hr
+    if am_pm == "PM":
+        hour += 12
+
     # Convert time to datetime object
-    # TODO: Make user_tz dynamic based on discord username and timezone in config file
     # TODO: Warn when trying to schedule event in the past.
     # Disc associated warning: "In scheduled_start_time: Cannot schedule event in the past."
 
@@ -211,7 +217,7 @@ async def event_signup(
     # Fetch first message of thread to get embed
     async for message in thread.history(limit=1, oldest_first=True):
         first_message = message
-    # If the first message's author is a bot, exit since not an event thread
+    # If the first message's author isn't a bot, exit since not an event thread
     if first_message.author.bot is False:
         await ctx.respond(
             "You can only use this command in an event thread",
@@ -353,5 +359,89 @@ async def event_signup(
 
     # TODO: Return error if slash command is used outside of a bot event thread
 
+@bot.slash_command(name="edit_event")
+@option("date", description="Date of the event in MM-dd format (Example: 5-23)")
+@option("hour", description="hour", choices=hours_list)
+@option("minute", description="minute", choices=minutes_list)
+@option("am_pm", description="AM/PM", choices=["AM", "PM"])
+@option("duration", description="Duration of the event in HOURS", choices=duration_list)
+@option("location", description="Voice channel for the event")
+@option("ping_role", description="Choose a role to ping")
+async def new_event(
+    ctx: discord.ApplicationContext,
+    date: str,
+    hour: int,
+    minute: str,
+    am_pm: str,
+    duration: int,
+    location: discord.VoiceChannel,
+    ping_role: discord.Role,
+):
+    """Edit event"""
+    await ctx.respond(f'date: {date}\nhour: {hour}\nminute: {minute}\nduration: {duration}', ephemeral=True)
+
+    # Fetch first message of thread to get message id
+    async for message in ctx.channel.history(limit=1, oldest_first=True):
+        first_message = message
+
+    # If the first message's author isn't a bot, exit since not an event thread
+    if first_message.author.bot is False:
+        await ctx.respond(
+            "You can only use this command in an event thread",
+            ephemeral=True,
+            delete_after=30,
+        )
+        return
+
+    # If PM, add 12 to conver to 24hr
+    if am_pm == "PM":
+        hour += 12
+    
+    # Convert time to datetime object
+    # TODO: Warn when trying to schedule event in the past.
+    # Disc associated warning: "In scheduled_start_time: Cannot schedule event in the past."
+
+    # Setup user's time zone
+    if str(ctx.author) in config["time_zone"]["US/Pacific"]:
+        user_tz = pytz.timezone("US/Pacific")
+    elif str(ctx.author) in config["time_zone"]["US/Central"]:
+        user_tz = pytz.timezone("US/Central")
+    elif str(ctx.author) in config["time_zone"]["US/Eastern"]:
+        user_tz = pytz.timezone("US/Eastern")
+    elif str(ctx.author) in config["time_zone"]["Europe/Oslo"]:
+        user_tz = pytz.timezone("Europe/Oslo")
+
+    user_tz_naive = datetime.datetime.strptime(
+        f"2023-{date} {hour}:{minute}", "%Y-%m-%d %H:%M"
+    )
+    user_tz_dt = user_tz.localize(user_tz_naive, is_dst=True)
+    utc_dt = user_tz_dt.astimezone(pytz.utc)
+    discord_tz_dt = discord.utils.format_dt(user_tz_dt)
+
+    # Save embed
+    embed = first_message.embeds[0]
+
+    # Edit message
+    await first_message.edit(
+        content=f"{discord_tz_dt}\nDuration: {duration} hr(s)\n{ping_role.mention}",
+        embed=embed
+    )
+
+    # Fetch all scheduled events
+    s_events = await ctx.guild.fetch_scheduled_events()
+
+    # Get scheduled event ID
+    for x in s_events:
+        if str(x) == first_message.channel.name:
+            scheduled_event = x
+
+    # Edit scheduled event
+    await scheduled_event.edit(
+        #name=first_message.channel.name,
+        #description=description,
+        start_time=utc_dt,
+        end_time=utc_dt + datetime.timedelta(0, 0, 0, 0, 0, duration),
+        location=location.id,
+    )
 
 bot.run(config["token"])

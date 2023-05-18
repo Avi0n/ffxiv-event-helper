@@ -166,7 +166,8 @@ async def new_event(
         f"Date: {date}\n"
         f"Time: {hour}:{minute}\n"
         f"Duration: {duration} hr(s)\n"
-        f"Voice Channel: {location.mention}",
+        f"Voice Channel: {location.mention}\n"
+        f"Pinged Role: {ping_role.mention}",
         ephemeral=True,
         delete_after=30,
     )
@@ -378,7 +379,6 @@ async def new_event(
     ping_role: discord.Role,
 ):
     """Edit event"""
-    await ctx.respond(f'date: {date}\nhour: {hour}\nminute: {minute}\nduration: {duration}', ephemeral=True)
 
     # Fetch first message of thread to get message id
     async for message in ctx.channel.history(limit=1, oldest_first=True):
@@ -435,13 +435,30 @@ async def new_event(
         if str(x) == first_message.channel.name:
             scheduled_event = x
 
-    # Edit scheduled event
-    await scheduled_event.edit(
-        #name=first_message.channel.name,
-        #description=description,
-        start_time=utc_dt,
-        end_time=utc_dt + datetime.timedelta(0, 0, 0, 0, 0, duration),
-        location=location.id,
-    )
+    try:
+        # Edit scheduled event
+        await scheduled_event.edit(
+            #name=first_message.channel.name,
+            #description=description,
+            start_time=utc_dt,
+            end_time=utc_dt + datetime.timedelta(0, 0, 0, 0, 0, duration),
+            location=location.id,
+        )
+        # Send confirmation message
+        await ctx.respond(
+            f"Event edited! Details:\n"
+            f"Date: {date}\n"
+            f"Time: {hour}:{minute}\n"
+            f"Duration: {duration} hr(s)\n"
+            f"Voice Channel: {location.mention}\n"
+            f"Pinged Role: {ping_role.mention}",
+            ephemeral=True,
+            delete_after=30,
+        )
+    except Exception as e:
+        print(f'Exception while assigning scheduled_event: {e}')
+        await ctx.respond(f"Error, please report to an Admin: {e}")
+
+
 
 bot.run(config["token"])

@@ -174,27 +174,27 @@ async def new_event(
 
 
 # Alternative way for users to register if embedded dropdown is being weird
-# TODO: Make emoji server values configurable
+# TODO: Add job emoji server values
 job_list = [
-    "<:Paladin:1103769230643564627> - PLD",
-    "<:Warrior:1103769231717306378> - WAR",
-    "<:DarkKnight:1103769227753693224> - DRK",
-    "<:Gunbreaker:1103769228902928485> - GNB",
-    "<:WhiteMage:1103769335689916436> - WHM",
-    "<:Scholar:1103769334356119603> - SCH",
-    "<:Astrologian:1103769330732257441> - AST",
-    "<:Sage:1103769332988772352> - SGE",
-    "<:Monk:1103769473183391774> - MNK",
-    "<:Dragoon:1103769469316251658> - DRG",
-    "<:Ninja:1103769879166853211> - NIN",
-    "<:Samurai:1103769882862034966> - SAM",
-    "<:Reaper:1103769880592928808> - RPR",
-    "<:Bard:1103769465763663912> - BRD",
-    "<:Machinist:1103769470494838927>  - MCH",
-    "<:Dancer:1103769468347351130> - DNC",
-    "<:BlackMage:1103769466963238975> - BLM",
-    "<:Summoner:1103769884376174823> - SMN",
-    "<:RedMage:1103769881897353339> - RDM",
+    "Paladin",
+    "Warrior",
+    "Dark Knight",
+    "Gunbreaker",
+    "White Mage",
+    "Scholar",
+    "Astrologian",
+    "Sage",
+    "Monk",
+    "Dragoon",
+    "Ninja",
+    "Samurai",
+    "Reaper",
+    "Bard",
+    "Machinist",
+    "Dancer",
+    "Black Mage",
+    "Summoner",
+    "Red Mage",
 ]
 
 
@@ -246,7 +246,6 @@ async def event_signup(
         # Loop through list and remove user_nick
         temp = 0
         for x in attending_list:
-            print(x)
             if user_nick in x:
                 attending_list.pop(temp)
             temp += 1
@@ -265,15 +264,18 @@ async def event_signup(
         # Update embed info
         await first_message.edit(embed=new_embed)
 
+    # Get custom job emoji
+    job_emoji = get(ctx.guild.emojis, name=job)
+
     # Add user to embed dict's Attendees
     if status == "Attending":
         attendees_list = embed_dict["fields"][1]["value"]
 
         # Add newline if another user has already registered
         if attendees_list == "":
-            attendees_list += f"{job} - {user_nick}"
+            attendees_list += f"{job_emoji} {user_nick}"
         else:
-            attendees_list += f"\n{job} - {user_nick}"
+            attendees_list += f"\n{job_emoji} {user_nick}"
 
         # Update embed dict with new Attendees info
         embed_dict["fields"][1]["value"] = attendees_list
@@ -295,9 +297,9 @@ async def event_signup(
 
         # Add newline if another user has already registered
         if tentative_list == "":
-            tentative_list += f"{job} - {user_nick}"
+            tentative_list += f"{job_emoji} {user_nick}"
         else:
-            tentative_list += f"\n{job} - {user_nick}"
+            tentative_list += f"\n{job_emoji} {user_nick}"
 
         # Update embed dict with new Tentative info
         embed_dict["fields"][2]["value"] = tentative_list
@@ -328,7 +330,6 @@ async def event_signup(
         # Loop through list and remove user_nick
         temp = 0
         for x in registered_list:
-            print(x)
             if user_nick in x:
                 registered_list.pop(temp)
             temp += 1

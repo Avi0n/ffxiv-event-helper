@@ -174,27 +174,27 @@ async def new_event(
 
 
 # Alternative way for users to register if embedded dropdown is being weird
-# TODO: Add job emoji server values
+# TODO: Make emoji server values configurable
 job_list = [
-    "PLD",
-    "WAR",
-    "DRK",
-    "GNB",
-    "WHM",
-    "SCH",
-    "AST",
-    "SGE",
-    "MNK",
-    "DRG",
-    "NIN",
-    "SAM",
-    "RPR",
-    "BRD",
-    "MCH",
-    "DNC",
-    "BLM",
-    "SMN",
-    "RDM",
+    "<:Paladin:1103769230643564627> - PLD",
+    "<:Warrior:1103769231717306378> - WAR",
+    "<:DarkKnight:1103769227753693224> - DRK",
+    "<:Gunbreaker:1103769228902928485> - GNB",
+    "<:WhiteMage:1103769335689916436> - WHM",
+    "<:Scholar:1103769334356119603> - SCH",
+    "<:Astrologian:1103769330732257441> - AST",
+    "<:Sage:1103769332988772352> - SGE",
+    "<:Monk:1103769473183391774> - MNK",
+    "<:Dragoon:1103769469316251658> - DRG",
+    "<:Ninja:1103769879166853211> - NIN",
+    "<:Samurai:1103769882862034966> - SAM",
+    "<:Reaper:1103769880592928808> - RPR",
+    "<:Bard:1103769465763663912> - BRD",
+    "<:Machinist:1103769470494838927>  - MCH",
+    "<:Dancer:1103769468347351130> - DNC",
+    "<:BlackMage:1103769466963238975> - BLM",
+    "<:Summoner:1103769884376174823> - SMN",
+    "<:RedMage:1103769881897353339> - RDM",
 ]
 
 

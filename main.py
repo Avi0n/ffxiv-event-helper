@@ -179,9 +179,9 @@ async def new_event(
 job_list = [
     "Paladin",
     "Warrior",
-    "Dark Knight",
+    "DarkKnight",
     "Gunbreaker",
-    "White Mage",
+    "WhiteMage",
     "Scholar",
     "Astrologian",
     "Sage",
@@ -193,9 +193,9 @@ job_list = [
     "Bard",
     "Machinist",
     "Dancer",
-    "Black Mage",
+    "BlackMage",
     "Summoner",
-    "Red Mage",
+    "RedMage",
 ]
 
 

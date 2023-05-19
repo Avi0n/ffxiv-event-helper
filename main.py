@@ -43,7 +43,7 @@ class DropdownView(discord.ui.View):
 # Create an event embed
 def create_embed(event_name, description, field_value, footer):
     embed = discord.Embed(
-        title=f'__{event_name}__',
+        title=f"__{event_name}__",
         description=description,
         color=discord.Colour.blurple(),
     )
@@ -100,7 +100,7 @@ async def new_event(
     am_pm: str,
     duration: int,
     location: discord.VoiceChannel,
-    ping_role: discord.Role
+    ping_role: discord.Role,
 ):
     """Create a new event."""
 
@@ -127,7 +127,8 @@ async def new_event(
     )
     user_tz_dt = user_tz.localize(user_tz_naive, is_dst=True)
     utc_dt = user_tz_dt.astimezone(pytz.utc)
-    discord_tz_dt = discord.utils.format_dt(user_tz_dt)
+    discord_tz_dt = discord.utils.format_dt(user_tz_dt, style="F")
+    discord_tz_R = discord.utils.format_dt(user_tz_dt, style="R")
 
     # Set static forum channel. Make dynamic later.
     forum_channel = bot.get_channel(config["channelid"])
@@ -139,7 +140,7 @@ async def new_event(
     thread = await forum_channel.create_thread(
         name=event_name,
         embed=embed,
-        content=f"{discord_tz_dt}\nDuration: {duration} hr(s)\n{ping_role.mention}",
+        content=f"🕗{discord_tz_dt}\n⌛{discord_tz_R}\nDuration: {duration} hr(s)\n{ping_role.mention}",
     )
 
     print(f"starting_message.id: {thread.starting_message.id}")
@@ -361,6 +362,7 @@ async def event_signup(
 
     # TODO: Return error if slash command is used outside of a bot event thread
 
+
 @bot.slash_command(name="edit_event")
 @option("date", description="Date of the event in MM-dd format (Example: 5-23)")
 @option("hour", description="hour", choices=hours_list)
@@ -397,7 +399,7 @@ async def new_event(
     # If PM, add 12 to conver to 24hr
     if am_pm == "PM":
         hour += 12
-    
+
     # Convert time to datetime object
     # TODO: Warn when trying to schedule event in the past.
     # Disc associated warning: "In scheduled_start_time: Cannot schedule event in the past."
@@ -417,15 +419,16 @@ async def new_event(
     )
     user_tz_dt = user_tz.localize(user_tz_naive, is_dst=True)
     utc_dt = user_tz_dt.astimezone(pytz.utc)
-    discord_tz_dt = discord.utils.format_dt(user_tz_dt)
+    discord_tz_dt = discord.utils.format_dt(user_tz_dt, style="F")
+    discord_tz_R = discord.utils.format_dt(user_tz_dt, style="R")
 
     # Save embed
     embed = first_message.embeds[0]
 
     # Edit message
     await first_message.edit(
-        content=f"{discord_tz_dt}\nDuration: {duration} hr(s)\n{ping_role.mention}",
-        embed=embed
+        content=f"🕗{discord_tz_dt}\n⌛{discord_tz_R}\nDuration: {duration} hr(s)\n{ping_role.mention}",
+        embed=embed,
     )
 
     # Fetch all scheduled events
@@ -439,8 +442,8 @@ async def new_event(
     try:
         # Edit scheduled event
         await scheduled_event.edit(
-            #name=first_message.channel.name,
-            #description=description,
+            # name=first_message.channel.name,
+            # description=description,
             start_time=utc_dt,
             end_time=utc_dt + datetime.timedelta(0, 0, 0, 0, 0, duration),
             location=location.id,
@@ -457,9 +460,8 @@ async def new_event(
             delete_after=30,
         )
     except Exception as e:
-        print(f'Exception while assigning scheduled_event: {e}')
+        print(f"Exception while assigning scheduled_event: {e}")
         await ctx.respond(f"Error, please report to an Admin: {e}")
-
 
 
 bot.run(config["token"])

@@ -235,20 +235,20 @@ async def event_signup(
     if user_nick in embed_dict["fields"][2]["value"]:
         registered_list = embed_dict["fields"][2]["value"]
         prev_status = "Tentative"
-        print(f"registered_list: {registered_list}")
     else:
         registered_list = embed_dict["fields"][1]["value"]
         prev_status = "Attending"
 
     # If user wants to change their status, remove from list then continue
     if user_nick in registered_list:
-        attending_list = registered_list.split("\n")
+        attending_list = registered_list.splitlines(keepends=True)
 
         # Loop through list and remove user_nick
         temp = 0
         for x in attending_list:
             if user_nick in x:
                 attending_list.pop(temp)
+                break
             temp += 1
 
         # Update embed dict with new info
@@ -322,10 +322,10 @@ async def event_signup(
         prev_status = ""
 
         if user_nick in embed_dict["fields"][1]["value"]:
-            registered_list = embed_dict["fields"][1]["value"].split("\n")
+            registered_list = embed_dict["fields"][1]["value"].splitlines(keepends=True)
             prev_status = "Attending"
         else:
-            registered_list = embed_dict["fields"][2]["value"].split("\n")
+            registered_list = embed_dict["fields"][2]["value"].splitlines(keepends=True)
             prev_status = "Tentative"
 
         # Loop through list and remove user_nick

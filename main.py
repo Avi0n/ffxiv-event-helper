@@ -177,6 +177,7 @@ async def new_event(
 # Alternative way for users to register if embedded dropdown is being weird
 # TODO: Add job emoji server values
 job_list = [
+    "AllRounder",
     "Paladin",
     "Warrior",
     "DarkKnight",

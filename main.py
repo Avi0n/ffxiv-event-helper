@@ -73,10 +73,48 @@ async def ping(ctx):
     await ctx.respond(f"Pong! {round(bot.latency)}ms")
 
 
-# New event slash command
+# Used for /time_converstion and /create_event commands
 hours_list = list(range(1, 13))
 minutes_list = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
 duration_list = [1, 2, 3, 4, 5, 6]
+
+# Convert user inputted time to hammertime type
+@bot.slash_command(name="time_conversion")
+@option("hour", description="hour", choices=hours_list)
+@option("minute", description="minute", choices=minutes_list)
+@option("am_pm", description="AM/PM", choices=["AM", "PM"])
+async def time_conversion(
+    ctx: discord.ApplicationContext,
+    hour: int,
+    minute: str,
+    am_pm: str,
+):
+    """Convert time to hammertime type."""
+
+    # If PM, add 12 to conver to 24hr
+    if am_pm == "PM":
+        hour += 12
+
+    # Setup user's time zone
+    if str(ctx.author) in config["time_zone"]["US/Pacific"]:
+        user_tz = pytz.timezone("US/Pacific")
+    elif str(ctx.author) in config["time_zone"]["US/Central"]:
+        user_tz = pytz.timezone("US/Central")
+    elif str(ctx.author) in config["time_zone"]["US/Eastern"]:
+        user_tz = pytz.timezone("US/Eastern")
+    elif str(ctx.author) in config["time_zone"]["Europe/Oslo"]:
+        user_tz = pytz.timezone("Europe/Oslo")
+
+    # Convert time to datetime object
+    user_tz_naive = datetime.datetime.strptime(
+        f"{hour}:{minute}", "%H:%M"
+    )
+    user_tz_dt = user_tz.localize(user_tz_naive, is_dst=True)
+    utc_dt = user_tz_dt.astimezone(pytz.utc)
+    discord_tz_t = discord.utils.format_dt(user_tz_dt, style="t")
+    discord_tz_R = discord.utils.format_dt(user_tz_dt, style="R")
+
+    await ctx.respond(discord_tz_t)
 
 
 # Create slash command

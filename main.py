@@ -107,12 +107,13 @@ async def time_conversion(
 
     # Convert time to datetime object
     user_tz_naive = datetime.datetime.strptime(
-        f"{hour}:{minute}", "%H:%M"
+        f"{datetime.date.today()} {hour}:{minute}", "%Y-%m-%d %H:%M"
     )
     user_tz_dt = user_tz.localize(user_tz_naive, is_dst=True)
     utc_dt = user_tz_dt.astimezone(pytz.utc)
     discord_tz_t = discord.utils.format_dt(user_tz_dt, style="t")
-    discord_tz_R = discord.utils.format_dt(user_tz_dt, style="R")
+    # Not using relative time atm, might use it in the future
+    #discord_tz_R = discord.utils.format_dt(user_tz_dt, style="R")
 
     await ctx.respond(discord_tz_t)
 
